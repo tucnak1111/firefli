@@ -129,14 +129,17 @@
     "overrides": {
       "qs": ">=6.14.2",
       "markdown-it": ">=14.1.1",
-      "hono@<4.11.7": ">=4.11.7",
+      "hono@<4.11.10": ">=4.11.10",
       "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
       "diff@<4.0.4": ">=4.0.4",
       "diff@>=5.0.0 <5.2.2": ">=5.2.2",
       "undici@>=7.0.0 <7.18.2": ">=7.18.2",
-      "fast-xml-parser": ">=5.3.6",
+      "fast-xml-parser": ">=5.3.8",
       "ajv": ">=8.18.0",
-      "webpack": ">=5.104.1"
+      "webpack": ">=5.104.1",
+      "minimatch@<3.1.4": "3.1.4",
+      "minimatch@>=9.0.0 <=9.0.5": "9.0.7",
+      "serialize-javascript@<=7.0.2": ">=7.0.3"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
