@@ -392,7 +392,7 @@ const Login: NextPage = () => {
 							Roblox Open Cloud API Key <span className="text-red-500">*</span>
 						</label>
 						<p className="text-xs text-zinc-400 dark:text-zinc-400 mt-1 mb-2">
-							Required for group member sync. Create one at{" "}
+							Required for group member sync. <strong>Create a USER API key</strong> (not a group key) at{" "}
 							<a
 								href="https://create.roblox.com/dashboard/credentials"
 								target="_blank"
