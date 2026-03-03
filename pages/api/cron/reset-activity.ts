@@ -139,28 +139,39 @@ export default async function handler(
 }
 
 async function performReset(workspaceGroupId: number) {
-  const earliestSession = await prisma.activitySession.findFirst({
+  const lastReset = await prisma.activityReset.findFirst({
     where: { workspaceGroupId },
-    orderBy: { startTime: "asc" },
-    select: { startTime: true },
+    orderBy: { resetAt: "desc" },
+    select: { resetAt: true },
   });
 
-  const earliestAdjustment = await prisma.activityAdjustment.findFirst({
-    where: { workspaceGroupId },
-    orderBy: { createdAt: "asc" },
-    select: { createdAt: true },
-  });
+  let periodStart: Date;
+  if (lastReset) {
+    periodStart = lastReset.resetAt;
+  } else {
+    const earliestSession = await prisma.activitySession.findFirst({
+      where: { workspaceGroupId },
+      orderBy: { startTime: "asc" },
+      select: { startTime: true },
+    });
 
-  let periodStart = new Date();
-  if (earliestSession && earliestAdjustment) {
-    periodStart =
-      earliestSession.startTime < earliestAdjustment.createdAt
-        ? earliestSession.startTime
-        : earliestAdjustment.createdAt;
-  } else if (earliestSession) {
-    periodStart = earliestSession.startTime;
-  } else if (earliestAdjustment) {
-    periodStart = earliestAdjustment.createdAt;
+    const earliestAdjustment = await prisma.activityAdjustment.findFirst({
+      where: { workspaceGroupId },
+      orderBy: { createdAt: "asc" },
+      select: { createdAt: true },
+    });
+
+    periodStart = new Date();
+    if (earliestSession && earliestAdjustment) {
+      periodStart =
+        earliestSession.startTime < earliestAdjustment.createdAt
+          ? earliestSession.startTime
+          : earliestAdjustment.createdAt;
+    } else if (earliestSession) {
+      periodStart = earliestSession.startTime;
+    } else if (earliestAdjustment) {
+      periodStart = earliestAdjustment.createdAt;
+    }
   }
 
   const periodEnd = new Date();
