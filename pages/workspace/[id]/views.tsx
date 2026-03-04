@@ -1,7 +1,7 @@
 import workspace from "@/layouts/workspace";
 import { pageWithLayout } from "@/layoutTypes";
 import { loginState } from "@/state";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Dialog, Popover, Transition } from "@headlessui/react";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { getThumbnail } from "@/utils/userinfoEngine";
@@ -2411,15 +2411,22 @@ const Filter: React.FC<{
   }[];
   departments: Array<{ id: string; name: string; color: string | null }>;
 }> = ({ updateFilter, deleteFilter, data, ranks, departments }) => {
+  const updateFilterRef = useRef(updateFilter);
+  useEffect(() => {
+    updateFilterRef.current = updateFilter;
+  }, [updateFilter]);
+
+  const validCol = data.column && filters[data.column] ? data.column : "username";
+
   const methods = useForm<{
     col: string;
     op: string;
     value: string;
   }>({
     defaultValues: {
-      col: data.column,
-      op: data.filter,
-      value: data.value,
+      col: validCol,
+      op: data.filter || "equal",
+      value: data.value || "",
     },
   });
 
@@ -2427,14 +2434,14 @@ const Filter: React.FC<{
 
   useEffect(() => {
     const subscription = methods.watch(() => {
-      updateFilter(
+      updateFilterRef.current(
         methods.getValues().col,
         methods.getValues().op,
         methods.getValues().value
       );
     });
     return () => subscription.unsubscribe();
-  }, [methods.watch]);
+  }, [methods]);
 
   return (
     <FormProvider {...methods}>
@@ -2470,7 +2477,7 @@ const Filter: React.FC<{
             {...register("op")}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
           >
-            {filters[methods.getValues().col].map((filter) => (
+            {(filters[methods.getValues().col] || filters["username"]).map((filter) => (
               <option value={filter} key={filter}>
                 {filterNames[filter]}
               </option>
