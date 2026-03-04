@@ -3,6 +3,7 @@ import prisma from "@/utils/database";
 import { validateApiKey } from "@/utils/api-auth";
 import { withPublicApiRateLimit } from "@/utils/prtl";
 import { logAudit } from "@/utils/logs";
+import * as noblox from "noblox.js";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -64,8 +65,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     ]);
 
     if (targetUserRankCheck && adminUserRankCheck) {
-      const targetRankNum = Number(targetUserRankCheck.rankId);
-      const adminRankNum = Number(adminUserRankCheck.rankId);
+      const storedTargetRank = Number(targetUserRankCheck.rankId);
+      const storedAdminRank = Number(adminUserRankCheck.rankId);
+      let targetRankNum = storedTargetRank;
+      let adminRankNum = storedAdminRank;
+
+      if (storedTargetRank > 255 || storedAdminRank > 255) {
+        try {
+          const robloxRoles = await noblox.getRoles(workspaceId);
+          const roleIdToRank = new Map<number, number>();
+          robloxRoles.forEach((role) => { roleIdToRank.set(role.id, role.rank); });
+          if (storedTargetRank > 255) targetRankNum = roleIdToRank.get(storedTargetRank) ?? storedTargetRank;
+          if (storedAdminRank > 255) adminRankNum = roleIdToRank.get(storedAdminRank) ?? storedAdminRank;
+        } catch (e) {
+          console.error("Failed to resolve Roblox role IDs to rank values:", e);
+        }
+      }
+
       if (targetRankNum >= adminRankNum) {
         const adminMember = await prisma.workspaceMember.findFirst({
           where: { userId: adminId, workspaceGroupId: workspaceId, isAdmin: true },
