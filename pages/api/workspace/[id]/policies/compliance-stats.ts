@@ -129,9 +129,8 @@ export async function handler(
 		// Calculate overall statistics
 		const totalPolicies = policies.length;
 		const totalMembers = members.length;
-
-		// Get all acknowledgments for compliance calculations
-		const allAcknowledgments = await prisma.policyAcknowledgment.findMany({
+		const activeMemberIds = new Set(members.map(m => m.userId.toString()));
+		const allAcknowledgments = (await prisma.policyAcknowledgment.findMany({
 			where: {
 				document: {
 					workspaceGroupId: workspaceId,
@@ -157,7 +156,7 @@ export async function handler(
 			orderBy: {
 				acknowledgedAt: 'desc'
 			}
-		});
+		})).filter(ack => activeMemberIds.has(ack.userId.toString()));
 
 		// Calculate policy breakdown
 		const policyBreakdown = policies.map(policy => {

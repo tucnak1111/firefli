@@ -25,9 +25,17 @@ export async function handler(
 		return res.status(404).json({ success: false, error: 'Policies feature not enabled' });
 	}
 
+	const workspaceId = parseInt(id as string);
+
+	const workspaceMembers = await prisma.workspaceMember.findMany({
+		where: { workspaceGroupId: workspaceId },
+		select: { userId: true }
+	});
+	const activeMemberIds = new Set(workspaceMembers.map(m => m.userId.toString()));
+
 	const policyDocuments = await prisma.document.findMany({
 		where: {
-			workspaceGroupId: parseInt(id as string),
+			workspaceGroupId: workspaceId,
 			requiresAcknowledgment: true
 		},
 		include: {
@@ -87,18 +95,24 @@ export async function handler(
 			const requiredUsers = new Map();
 			doc.roles.forEach(role => {
 				role.members.forEach(member => {
-					requiredUsers.set(member.userid.toString(), member);
+					if (activeMemberIds.has(member.userid.toString())) {
+						requiredUsers.set(member.userid.toString(), member);
+					}
 				});
 			});
 
 			doc.departments.forEach(department => {
 				department.departmentMembers.forEach(departmentMember => {
 					const user = departmentMember.workspaceMember.user;
-					requiredUsers.set(user.userid.toString(), user);
+					if (activeMemberIds.has(user.userid.toString())) {
+						requiredUsers.set(user.userid.toString(), user);
+					}
 				});
 			});
 
-			const currentVersionAcknowledgments = doc.acknowledgments;
+			const currentVersionAcknowledgments = doc.acknowledgments.filter(
+				ack => activeMemberIds.has(ack.userId.toString())
+			);
 
 			const totalRequired = requiredUsers.size;
 			const totalAcknowledged = currentVersionAcknowledgments.length;
