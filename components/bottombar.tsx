@@ -18,6 +18,7 @@ import {
   Settings01Icon,
   MoreHorizontalIcon,
   Cancel01Icon,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons"
 import { Dialog, Transition } from "@headlessui/react"
 import { Fragment } from "react"
@@ -28,11 +29,9 @@ const BottomBar: NextPage = () => {
   const [login] = useRecoilState(loginState)
   const [workspace] = useRecoilState(workspacestate)
   const [showMore, setShowMore] = useState(false)
-  const [docsEnabled, setDocsEnabled] = useState(false)
   const [alliesEnabled, setAlliesEnabled] = useState(false)
-  const [sessionsEnabled, setSessionsEnabled] = useState(false)
-  const [noticesEnabled, setNoticesEnabled] = useState(false)
   const [policiesEnabled, setPoliciesEnabled] = useState(false)
+  const [recommendationsEnabled, setRecommendationsEnabled] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -42,11 +41,9 @@ const BottomBar: NextPage = () => {
       try {
         const res = await axios.get(`/api/workspace/${workspace.groupId}/settings/general/configuration`)
         const data = res.data
-        setDocsEnabled(data.value?.guides?.enabled ?? false)
         setAlliesEnabled(data.value?.allies?.enabled ?? false)
-        setSessionsEnabled(data.value?.sessions?.enabled ?? false)
-        setNoticesEnabled(data.value?.notices?.enabled ?? false)
         setPoliciesEnabled(data.value?.policies?.enabled ?? false)
+        setRecommendationsEnabled(data.value?.recommendations?.enabled ?? false)
       } catch (e) {
         // dont break
       }
@@ -58,16 +55,17 @@ const BottomBar: NextPage = () => {
     { name: "Home", href: `/workspace/${workspace.groupId}`, icon: Home07Icon },
     { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: Task01Icon },
     { name: "Quotas", href: `/workspace/${workspace.groupId}/quotas`, icon: Target01Icon, accessible: true },
-    ...(sessionsEnabled ? [{ name: "Sessions", href: `/workspace/${workspace.groupId}/sessions`, icon: Calendar01Icon, accessible: true }] : []),
+    { name: "Sessions", href: `/workspace/${workspace.groupId}/sessions`, icon: Calendar01Icon, accessible: true },
   ]
 
   const morePages = [
     { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: Comment01Icon, accessible: workspace.yourPermission.includes("view_wall") },
     { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: UserMultipleIcon, accessible: workspace.yourPermission.includes("view_members") },
-    ...(noticesEnabled ? [{ name: "Notices", href: `/workspace/${workspace.groupId}/notices`, icon: Beach02Icon, accessible: true }] : []),
+    { name: "Notices", href: `/workspace/${workspace.groupId}/notices`, icon: Beach02Icon, accessible: true },
     ...(alliesEnabled ? [{ name: "Alliances", href: `/workspace/${workspace.groupId}/alliances`, icon: Agreement01Icon, accessible: true }] : []),
-    ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: File02Icon, accessible: true }] : []),
+    { name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: File02Icon, accessible: true },
     ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: UserShield01Icon, accessible: true }] : []),
+    ...(recommendationsEnabled && (workspace.yourPermission?.includes("view_recommendations") || workspace.isAdmin) ? [{ name: "Recommendations", href: `/workspace/${workspace.groupId}/recommendations`, icon: SparklesIcon, accessible: true }] : []),
     { name: "Settings", href: `/workspace/${workspace.groupId}/settings`, icon: Settings01Icon, accessible: ["admin", "workspace_customisation", "reset_activity", "manage_features", "manage_apikeys", "view_audit_logs"].some(perm => workspace.yourPermission.includes(perm)) },
   ].filter(page => page.accessible !== false)
 
@@ -193,13 +191,17 @@ const BottomBar: NextPage = () => {
                               : "hover:bg-zinc-100 dark:hover:bg-zinc-700"
                           }`}
                         >
-                          <HugeiconsIcon
-                            icon={page.icon as IconSvgElement}
-                            strokeWidth={1.5}
-                            className={`w-7 h-7 ${
-                              active ? "text-primary" : "text-zinc-600 dark:text-zinc-300"
-                            }`}
-                          />
+                          {Array.isArray(page.icon) ? (
+                            <HugeiconsIcon
+                              icon={page.icon as IconSvgElement}
+                              strokeWidth={1.5}
+                              className={`w-7 h-7 ${
+                                active ? "text-primary" : "text-zinc-600 dark:text-zinc-300"
+                              }`}
+                            />
+                          ) : (
+                            (() => { const IconComp = page.icon as unknown as React.ElementType; return <IconComp className={`w-7 h-7 ${active ? "text-primary" : "text-zinc-600 dark:text-zinc-300"}`} />; })()
+                          )}
                           <span
                             className={`text-xs mt-2 ${
                               active

@@ -175,17 +175,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
       await tx.config.createMany({
         data: [
           {
-            key: "guides",
-            workspaceGroupId: groupId,
-            value: { enabled: true },
-          },
-          {
             key: "allies",
-            workspaceGroupId: groupId,
-            value: { enabled: true },
-          },
-          {
-            key: "sessions",
             workspaceGroupId: groupId,
             value: { enabled: true },
           },
@@ -195,14 +185,9 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
             value: { enabled: true },
           },
           {
-            key: "policies",
+            key: "recommendations",
             workspaceGroupId: groupId,
             value: { enabled: false },
-          },
-          {
-            key: "leaderboard",
-            workspaceGroupId: groupId,
-            value: { enabled: true },
           },
         ],
       });

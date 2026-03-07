@@ -34,7 +34,6 @@ const Activity: FC<props> = (props) => {
   const [lastReset, setLastReset] = useState<any>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  const [leaderboardEnabled, setLeaderboardEnabled] = useState(false);
   const [idleTimeEnabled, setIdleTimeEnabled] = useState(true);
   const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">(
     "list"
@@ -103,11 +102,9 @@ const Activity: FC<props> = (props) => {
             typeof val === "object" && val !== null && "style" in val
               ? (val as { style?: string }).style ?? "list"
               : "list";
-          setLeaderboardEnabled(enabled);
           setLeaderboardStyle(style as "list" | "podium");
         })
         .catch(() => {
-          setLeaderboardEnabled(false);
           setLeaderboardStyle("list");
         });
     }
@@ -203,7 +200,6 @@ const Activity: FC<props> = (props) => {
       const res = await axios.patch(
         `/api/workspace/${workspace.groupId}/settings/general/leaderboard`,
         {
-          enabled: leaderboardEnabled,
           style: style,
         }
       );
@@ -464,8 +460,6 @@ const Activity: FC<props> = (props) => {
       </div>
 
       <div className="border-t border-zinc-200 dark:border-zinc-700 my-8"></div>
-      {leaderboardEnabled && (
-        <>
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
             Leaderboard
           </h3>
@@ -713,8 +707,6 @@ const Activity: FC<props> = (props) => {
               </Listbox>
             </div>
           </div>
-        </>
-      )}
         </>
       )}
 

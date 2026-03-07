@@ -249,7 +249,7 @@ const workspace: LayoutProps = ({ children }) => {
 	}, [router.query.id, workspace.settings?.policiesEnabled]);
 
 	useEffect(() => {
-		if (router.query.id && workspace.settings?.noticesEnabled) {
+		if (router.query.id) {
 			const canApprove = workspace.yourPermission?.includes("approve_notices") ||
 				workspace.yourPermission?.includes("manage_notices") ||
 				workspace.isAdmin;
@@ -264,7 +264,7 @@ const workspace: LayoutProps = ({ children }) => {
 					.catch(() => setPendingNoticesCount(0));
 			}
 		}
-	}, [router.query.id, workspace.settings?.noticesEnabled, workspace.yourPermission, workspace.isAdmin]);
+	}, [router.query.id, workspace.yourPermission, workspace.isAdmin]);
 
 	useEffect(() => {
 		const handleSavedViewsChanged = () => {
@@ -343,8 +343,6 @@ const workspace: LayoutProps = ({ children }) => {
 		);
 
 		if (isActivitySection) {
-			const leaderboardEnabled = workspace.settings?.leaderboardEnabled;
-			const sessionsEnabled = workspace.settings?.sessionsEnabled;
 			const activityItems: SecondarySidebarItem[] = [
 				{
 					label: "Activity",
@@ -360,14 +358,12 @@ const workspace: LayoutProps = ({ children }) => {
 				},
 			];
 
-			if (leaderboardEnabled) {
-				activityItems.push({
-					label: "Leaderboard",
-					href: `/workspace/${id}/leaderboard`,
-					icon: ChampionIcon,
-					active: path.includes(`/workspace/${id}/leaderboard`),
-				});
-			}
+			activityItems.push({
+				label: "Leaderboard",
+				href: `/workspace/${id}/leaderboard`,
+				icon: ChampionIcon,
+				active: path.includes(`/workspace/${id}/leaderboard`),
+			});
 
 			const sections: SecondarySidebarSection[] = [
 				{
@@ -378,7 +374,7 @@ const workspace: LayoutProps = ({ children }) => {
 			return { title: "Activity", sections, hideHeader: true };
 		}
 
-		const staffPages = ['/views', '/notices'];
+		const staffPages = ['/views', '/notices', '/recommendations'];
 		const isStaffSectionPage = staffPages.some(page => 
 			path.includes(`/workspace/${id}${page}`)
 		);
@@ -451,12 +447,13 @@ const workspace: LayoutProps = ({ children }) => {
 
 			const staffItems: SecondarySidebarItem[] = [];
 			
+			const isOnRecommendationsPage = path.includes(`/workspace/${id}/recommendations`);
 			if (hasViewMembersPermission) {
 				staffItems.push({
 					label: "Views",
 					href: `/workspace/${id}/views`,
 					icon: UserMultiple02Icon,
-					active: !isOnNotices && !currentViewId,
+					active: !isOnNotices && !isOnRecommendationsPage && !currentViewId,
 				});
 			}
 			
@@ -467,6 +464,16 @@ const workspace: LayoutProps = ({ children }) => {
 					icon: Beach02Icon,
 					active: isOnNotices,
 					badge: pendingNoticesCount > 0 ? pendingNoticesCount : undefined,
+				});
+			}
+
+			const hasRecommendationsPermission = workspace.settings?.recommendationsEnabled && (workspace.yourPermission?.includes("view_recommendations") || workspace.isAdmin);
+			if (hasRecommendationsPermission) {
+				staffItems.push({
+					label: "Recommendations",
+					href: `/workspace/${id}/recommendations`,
+					icon: IconSparkles,
+					active: isOnRecommendationsPage,
 				});
 			}
 
@@ -503,15 +510,13 @@ const workspace: LayoutProps = ({ children }) => {
 			return { title: "Staff", sections, hideHeader: true };
 		}
 
-		const docsEnabled = workspace.settings?.guidesEnabled;
 		const policiesEnabled = workspace.settings?.policiesEnabled;
-		const bothResourcesEnabled = docsEnabled && policiesEnabled;
 		const resourcesPages = ['/docs', '/policies'];
 		const isResourcesSection = resourcesPages.some(page => 
 			path.includes(`/workspace/${id}${page}`)
 		);
 
-		if (isResourcesSection && bothResourcesEnabled) {
+		if (isResourcesSection && policiesEnabled) {
 			const sections: SecondarySidebarSection[] = [
 				{
 					title: "Resources",
@@ -549,9 +554,7 @@ const workspace: LayoutProps = ({ children }) => {
 			const canAccessAudit = hasPermission('view_audit_logs');
 			const canAccessIntegrations = workspace.isAdmin || hasPermission('admin');
 			const canAccessInstance = workspace.isAdmin || hasPermission('admin');
-
 			const currentSection = (router.query.section as string) || 'general';
-
 			const settingsItems: SecondarySidebarItem[] = [];
 
 			if (canAccessGeneral) {
@@ -637,7 +640,7 @@ const workspace: LayoutProps = ({ children }) => {
 		}
 
 		return null;
-	}, [router.asPath, router.query.id, router.query.section, savedViews, localViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.leaderboardEnabled, workspace.settings?.sessionsEnabled, deleteSavedView, pendingPolicyCount, pendingNoticesCount]);
+	}, [router.asPath, router.query.id, router.query.section, savedViews, localViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.sessionsEnabled, workspace.settings?.recommendationsEnabled, deleteSavedView, pendingPolicyCount, pendingNoticesCount]);
 
 	const showSecondarySidebar = !!getSecondarySidebar;
 	const workspaceBg = workspace && workspace.groupTheme ? "" : "bg-firefli";

@@ -50,7 +50,6 @@ const Activity: pageWithLayout = () => {
   const [topStaff, setTopStaff] = useState<any[]>([]);
   const [activeUsers, setActiveUsers] = useState([]);
   const [inactiveUsers, setInactiveUsers] = useState([]);
-  const [leaderboardEnabled, setLeaderboardEnabled] = useState(false);
   const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">("list");
   const [sessionsEnabled, setSessionsEnabled] = useState(false);
 
@@ -230,7 +229,6 @@ const Activity: pageWithLayout = () => {
           typeof val === "object" && val !== null && "style" in val
             ? (val as { style?: string }).style ?? "list"
             : "list";
-        setLeaderboardEnabled(enabled);
         setLeaderboardStyle(style as "list" | "podium");
       } catch (error) {
         console.error("Error fetching leaderboard config:", error);
@@ -339,7 +337,7 @@ const Activity: pageWithLayout = () => {
         </div>
 
         {/* Leaderboard - Mobile Only */}
-        {leaderboardEnabled && topStaff.length > 0 && (
+        {topStaff.length > 0 && (
           <div className="md:hidden mb-8">
             {leaderboardStyle === "podium" ? (
               <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-6 shadow-sm">
@@ -471,7 +469,7 @@ const Activity: pageWithLayout = () => {
         )}
 
         {/* In-game/Inactive Staff - Mobile Only */}
-        {leaderboardEnabled && topStaff.length > 0 && (
+        {topStaff.length > 0 && (
           <div className="md:hidden grid grid-cols-1 gap-4 mb-8">
             {[
               { title: "In-game Staff", subtitle: "Currently active members", users: activeUsers, emptyText: "No staff are currently in-game", icon: IconUsers },

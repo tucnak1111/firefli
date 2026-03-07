@@ -21,7 +21,8 @@ import {
   Sun03Icon,
   Moon02Icon,
   Beach02Icon,
-  UserShield01Icon
+  UserShield01Icon,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons"
 import {
   IconStar,
@@ -173,11 +174,9 @@ const Sidebar: NextPage = () => {
   const [showCopyright, setShowCopyright] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
   const [changelog, setChangelog] = useState<{ title: string, pubDate: string, content: string }[]>([]);
-  const [docsEnabled, setDocsEnabled] = useState(false);
   const [alliesEnabled, setAlliesEnabled] = useState(false);
-  const [sessionsEnabled, setSessionsEnabled] = useState(false);
-  const [noticesEnabled, setNoticesEnabled] = useState(false);
   const [policiesEnabled, setPoliciesEnabled] = useState(false);
+  const [recommendationsEnabled, setRecommendationsEnabled] = useState(false);
   const [pendingPolicyCount, setPendingPolicyCount] = useState(0);
   const [pendingNoticesCount, setPendingNoticesCount] = useState(0);
   const router = useRouter()
@@ -222,17 +221,19 @@ const Sidebar: NextPage = () => {
   const getSections = (): SectionConfig[] => {
     if (!workspace?.groupId) return [];
     
-    const hasNoticesPermission = noticesEnabled && (
-      workspace.yourPermission?.includes("create_notices") ||
+    const hasNoticesPermission = (workspace.yourPermission?.includes("create_notices") ||
       workspace.yourPermission?.includes("approve_notices") ||
       workspace.yourPermission?.includes("manage_notices")
     );
-    
+    const docsEnabled = workspace.settings?.guidesEnabled ?? true;
+    const hasRecommendationsPermission = workspace.settings?.recommendationsEnabled && (workspace.yourPermission?.includes("view_recommendations") || workspace.isAdmin);
     const hasViewMembersPermission = workspace.yourPermission?.includes("view_members");
-    const showStaffSection = hasViewMembersPermission || hasNoticesPermission;
+    const showStaffSection = hasViewMembersPermission || hasNoticesPermission || hasRecommendationsPermission;
     const staffHref = hasViewMembersPermission 
       ? `/workspace/${workspace.groupId}/views` 
-      : `/workspace/${workspace.groupId}/notices`;
+      : hasNoticesPermission
+        ? `/workspace/${workspace.groupId}/notices`
+        : `/workspace/${workspace.groupId}/recommendations`;
     
     return [
     { 
@@ -257,19 +258,27 @@ const Sidebar: NextPage = () => {
         `/workspace/${workspace.groupId}/quotas`,
       ]
     },
-    ...(sessionsEnabled ? [{ 
+    { 
       name: "Sessions", 
       href: `/workspace/${workspace.groupId}/sessions`,
       icon: Calendar01Icon,
       accessible: true,
-    }] : []),
-    ...((docsEnabled || policiesEnabled) ? [{ 
+	},
+    ...(docsEnabled ? [{ 
       name: "Docs", 
-      href: docsEnabled ? `/workspace/${workspace.groupId}/docs` : `/workspace/${workspace.groupId}/policies`, 
+      href: `/workspace/${workspace.groupId}/docs`, 
       icon: File02Icon,
       accessible: true,
       matchPaths: [
         `/workspace/${workspace.groupId}/docs`,
+        ...(!policiesEnabled ? [] : [`/workspace/${workspace.groupId}/policies`]),
+      ]
+    }] : policiesEnabled ? [{ 
+      name: "Docs", 
+      href: `/workspace/${workspace.groupId}/policies`, 
+      icon: File02Icon,
+      accessible: true,
+      matchPaths: [
         `/workspace/${workspace.groupId}/policies`,
       ]
     }] : []),
@@ -281,6 +290,7 @@ const Sidebar: NextPage = () => {
       matchPaths: [
         `/workspace/${workspace.groupId}/views`,
         `/workspace/${workspace.groupId}/notices`,
+        `/workspace/${workspace.groupId}/recommendations`,
       ]
     }] : []),
     ...(alliesEnabled ? [{
@@ -304,26 +314,31 @@ const Sidebar: NextPage = () => {
     { name: "Home", href: `/workspace/${workspace.groupId}`, icon: Home07Icon },
     { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: Comment01Icon, accessible: workspace.yourPermission.includes("view_wall") },
     { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: Task01Icon, accessible: true },
-   ...(noticesEnabled ? [{
+    {
       name: "Notices",
       href: `/workspace/${workspace.groupId}/notices`,
       icon: Beach02Icon,
       accessible: true,
-    }] : []),
+    },
     ...(alliesEnabled ? [{
       name: "Alliances",
       href: `/workspace/${workspace.groupId}/alliances`,
       icon: Agreement01Icon,
       accessible: true,
     }] : []),
-    ...(sessionsEnabled ? [{
+    {
       name: "Sessions",
       href: `/workspace/${workspace.groupId}/sessions`,
       icon: Calendar01Icon,
       accessible: true,
-    }] : []),
+    },
     { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: UserMultipleIcon, accessible: workspace.yourPermission.includes("view_members") },
-    ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: File02Icon, accessible: true }] : []),
+    {
+		name: "Docs", 
+		href: `/workspace/${workspace.groupId}/docs`, 
+		icon: File02Icon, 
+		accessible: true 
+	},
     ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: UserShield01Icon, accessible: true }] : []),
   ];
 
@@ -369,13 +384,10 @@ const Sidebar: NextPage = () => {
     fetch(`/api/workspace/${workspace.groupId}/settings/general/configuration`)
       .then(res => res.json())
       .then(data => {
-        setDocsEnabled(data.value.guides?.enabled ?? false);
 		setAlliesEnabled(data.value.allies?.enabled ?? false);
-		setSessionsEnabled(data.value.sessions?.enabled ?? false);
-		setNoticesEnabled(data.value.notices?.enabled ?? false);
+		setRecommendationsEnabled(data.value.recommendations?.enabled ?? false);
 		setPoliciesEnabled(data.value.policies?.enabled ?? false);
       })
-      .catch(() => setDocsEnabled(false));
   }, [workspace.groupId]);
 
   useEffect(() => {
@@ -390,21 +402,6 @@ const Sidebar: NextPage = () => {
         .catch(() => setPendingPolicyCount(0));
     }
   }, [workspace.groupId, policiesEnabled]);
-
-  useEffect(() => {
-    if (noticesEnabled) {
-      if (workspace.yourPermission?.includes("approve_notices") || workspace.yourPermission?.includes("manage_notices") || workspace.yourPermission?.includes("admin")) {
-        fetch(`/api/workspace/${workspace.groupId}/activity/notices/count`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              setPendingNoticesCount(data.count || 0);
-            }
-          })
-          .catch(() => setPendingNoticesCount(0));
-      }
-    }
-  }, [workspace.groupId, noticesEnabled, workspace.yourPermission]);
 
   return (
     <div className="hidden md:flex h-full flex-row">

@@ -93,7 +93,8 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
 
             <div className="flex-1">
               <h2 id="bday-title" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Set your birthday</h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sharing your birthday helps with celebrations — you can skip if you'd prefer not to.</p>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sharing your birthday helps with celebrations!</p>
+              <p className='text-zinc-500 dark:text-zinc-400'>You can skip if you'd prefer not to.</p>
             </div>
           </div>
 

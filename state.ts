@@ -45,12 +45,13 @@ const workspacestate = atom({
 		roles: [] as role[],
 		yourRole: '',
 		settings: {
-			guidesEnabled: false,
-			sessionsEnabled: false,
+			guidesEnabled: true,
+			sessionsEnabled: true,
 			alliesEnabled: false,
-			noticesEnabled: false,
-			leaderboardEnabled: false,
+			noticesEnabled: true,
+			leaderboardEnabled: true,
 			policiesEnabled: false,
+			recommendationsEnabled: false,
 			widgets: [] as string[],
 			layout: undefined as Array<{
 				i: string;

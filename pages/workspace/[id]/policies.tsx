@@ -664,9 +664,6 @@ const PoliciesPage: pageWithLayout<pageProps> = ({
             <h1 className="text-2xl font-medium text-zinc-900 dark:text-white">
               Policies
             </h1>
-            <span className="px-2 py-1 text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full">
-              BETA
-            </span>
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             {viewMode === "user"

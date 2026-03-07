@@ -25,15 +25,12 @@ async function handler(
 	if(!req.session.userid) return res.status(401).json({ success: false, error: "Not logged in" });
 
 	const configuration = await Promise.all([
-		getConfig("guides", parseInt(req.query.id as string)),
 		getConfig("allies", parseInt(req.query.id as string)),
-		getConfig("sessions", parseInt(req.query.id as string)),
-		getConfig("notices", parseInt(req.query.id as string)),
-		getConfig("leaderboard", parseInt(req.query.id as string)),
+		getConfig("recommendations", parseInt(req.query.id as string)),
 		getConfig("policies", parseInt(req.query.id as string)),
 	])
 
-	const keys = ["guides", "allies", "sessions", "notices", "leaderboard", "policies"];
+	const keys = ["allies", "recommendations", "policies"];
 	return res.status(200).json({ 
 		success: true, 
 		value: configuration.reduce((acc, curr, index) => {

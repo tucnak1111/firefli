@@ -22,12 +22,9 @@ type Data = {
 		ownerId: number | null
 		groupTheme: string,
 		settings: {
-			guidesEnabled: boolean
-			leaderboardEnabled: boolean
-			sessionsEnabled: boolean
 			alliesEnabled: boolean
-			noticesEnabled: boolean
 			policiesEnabled: boolean
+			recommendationsEnabled: boolean
 			widgets: string[]
 			layout?: Array<{
 				i: string
@@ -135,6 +132,7 @@ export async function handler(
 		"Logbook promotion": "logbook_promotion",
 		"Logbook demotion": "logbook_demotion",
 		"Logbook termination": "logbook_termination",
+		"Logbook resignation": "logbook_resignation",
 		"Rank users": "rank_users",
 		"Create alliances": "create_alliances",
 		"Delete alliances": "delete_alliances",
@@ -168,12 +166,9 @@ export async function handler(
 		roles: workspace.roles,
 		yourRole: user.roles[0].id,
 		settings: {
-			guidesEnabled: (await getConfig('guides', workspace.groupId))?.enabled || false,
-			leaderboardEnabled: (await getConfig('leaderboard', workspace.groupId))?.enabled || false,
-			sessionsEnabled: (await getConfig('sessions', workspace.groupId))?.enabled || false,
 			alliesEnabled: (await getConfig('allies', workspace.groupId))?.enabled || false,
-			noticesEnabled: (await getConfig('notices', workspace.groupId))?.enabled || false,
 			policiesEnabled: (await getConfig('policies', workspace.groupId))?.enabled || false,
+			recommendationsEnabled: (await getConfig('recommendations', workspace.groupId))?.enabled || false,
 			widgets: (await getConfig('home', workspace.groupId))?.widgets || [],
 			layout: (await getConfig('home', workspace.groupId))?.layout || undefined
 		}

@@ -23,11 +23,7 @@ async function handler(
   }
 
   if (req.method === 'GET') {
-	const config = await getConfig('leaderboard', parseInt(req.query.id as string));
-	if (!config) {
-	  return res.status(404).json({ success: false, error: 'Not found' });
-	}
-	return res.status(200).json({ success: true, value: config });
+	return res.status(200).json({ success: true });
   }
 
   if (req.method === 'PATCH') {

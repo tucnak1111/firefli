@@ -100,33 +100,6 @@ export const getServerSideProps = withPermissionCheckSsr(
       };
     }
 
-    const config = await prisma.config.findFirst({
-      where: {
-        workspaceGroupId: parseInt(id as string),
-        key: "guides",
-      },
-    });
-
-    let guidesEnabled = false;
-    if (config?.value) {
-      let val = config.value;
-      if (typeof val === "string") {
-        try {
-          val = JSON.parse(val);
-        } catch {
-          val = {};
-        }
-      }
-      guidesEnabled =
-        typeof val === "object" && val !== null && "enabled" in val
-          ? (val as { enabled?: boolean }).enabled ?? false
-          : false;
-    }
-
-    if (!guidesEnabled) {
-      return { notFound: true };
-    }
-
     const membership = user.workspaceMemberships?.[0];
     const isAdmin = membership?.isAdmin || false;
     const userRoleIds = (user.roles || []).map((r: any) => r.id);

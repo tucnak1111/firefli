@@ -155,29 +155,14 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
             },
             { key: "theme", workspaceGroupId: groupIdNumber, value: color },
             {
-              key: "guides",
-              workspaceGroupId: groupIdNumber,
-              value: { enabled: true },
-            },
-            {
-              key: "sessions",
-              workspaceGroupId: groupIdNumber,
-              value: { enabled: true },
-            },
-            {
               key: "allies",
               workspaceGroupId: groupIdNumber,
               value: { enabled: true },
             },
             {
-              key: "leaderboard",
+              key: "recommendations",
               workspaceGroupId: groupIdNumber,
-              value: { enabled: true },
-            },
-            {
-              key: "notices",
-              workspaceGroupId: groupIdNumber,
-              value: { enabled: true },
+              value: { enabled: false },
             },
             {
               key: "policies",

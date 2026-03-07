@@ -36,14 +36,11 @@ const Leaderboard: FC<props> = (props) => {
     }
   }, [workspace.groupId]);
 
-  const updateLeaderboard = async (enabled?: boolean, style?: string) => {
+  const updateLeaderboard = async (style?: string) => {
     const res = await axios.patch(
       `/api/workspace/${workspace.groupId}/settings/general/leaderboard`,
       {
-        enabled:
-          enabled !== undefined
-            ? enabled
-            : workspace.settings.leaderboardEnabled,
+        enabled: true,
         style: style || leaderboardStyle,
       }
     );
@@ -51,9 +48,6 @@ const Leaderboard: FC<props> = (props) => {
       const obj = JSON.parse(JSON.stringify(workspace), (key, value) =>
         typeof value === "bigint" ? value.toString() : value
       );
-      if (enabled !== undefined) {
-        obj.settings.leaderboardEnabled = enabled;
-      }
       if (style) {
         setLeaderboardStyle(style as "list" | "podium");
       }
@@ -65,34 +59,11 @@ const Leaderboard: FC<props> = (props) => {
   };
 
   const handleStyleChange = (style: string) => {
-    updateLeaderboard(undefined, style);
+    updateLeaderboard(style);
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <IconTrophy size={20} className="text-primary" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-900 dark:text-white">
-              Leaderboard
-            </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              View top performers on your workspace
-            </p>
-          </div>
-        </div>
-        <SwitchComponenet
-          checked={workspace.settings?.leaderboardEnabled}
-          onChange={() =>
-            updateLeaderboard(!workspace.settings.leaderboardEnabled)
-          }
-          label=""
-          classoverride="mt-0"
-        />
-      </div>
     </div>
   );
 };
@@ -127,7 +98,7 @@ export const LeaderboardStyleSelector: FC<props> = (props) => {
       const res = await axios.patch(
         `/api/workspace/${workspace.groupId}/settings/general/leaderboard`,
         {
-          enabled: workspace.settings.leaderboardEnabled,
+          enabled: true,
           style: style,
         }
       );

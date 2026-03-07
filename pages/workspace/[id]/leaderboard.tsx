@@ -76,26 +76,6 @@ export const getServerSideProps = withPermissionCheckSsr(
       },
     });
 
-    let leaderboardEnabled = false;
-    if (config?.value) {
-      let val = config.value;
-      if (typeof val === "string") {
-        try {
-          val = JSON.parse(val);
-        } catch {
-          val = {};
-        }
-      }
-      leaderboardEnabled =
-        typeof val === "object" && val !== null && "enabled" in val
-          ? (val as { enabled?: boolean }).enabled ?? false
-          : false;
-    }
-
-    if (!leaderboardEnabled) {
-      return { notFound: true };
-    }
-
     return {
       props: {},
     };

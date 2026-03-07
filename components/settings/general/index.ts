@@ -1,12 +1,9 @@
 import Color from './color';
-import Guide from './guides'
 import Alliances from './allies'
 import Activity from './activity'
 import home from './home'
-import Sessions from './sessions'
-import Leaderboard from './leaderboard'
-import Notices from './notices'
+import Recommendations from './recommendations'
 import Policies from './policies'
 import AuditLogs from './logs'
 import Admin from './admin'
-export { home, Color, Guide, Alliances, Sessions, Activity, Leaderboard, AuditLogs, Policies, Notices, Admin };
+export { home, Color, Alliances, Activity, AuditLogs, Policies, Recommendations, Admin };

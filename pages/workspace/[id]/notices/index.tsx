@@ -124,26 +124,6 @@ export const getServerSideProps = withPermissionCheckSsr(
       },
     });
 
-    let noticesEnabled = false;
-    if (config?.value) {
-      let val = config.value;
-      if (typeof val === "string") {
-        try {
-          val = JSON.parse(val);
-        } catch {
-          val = {};
-        }
-      }
-      noticesEnabled =
-        typeof val === "object" && val !== null && "enabled" in val
-          ? (val as { enabled?: boolean }).enabled ?? false
-          : false;
-    }
-
-    if (!noticesEnabled) {
-      return { notFound: true };
-    }
-
     const membership = user?.workspaceMemberships?.[0];
     const isAdmin = membership?.isAdmin || false;
     const hasApprovePermission = isAdmin || user?.roles.some(

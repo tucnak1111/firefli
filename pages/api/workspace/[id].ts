@@ -20,12 +20,9 @@ type Data = {
 		yourPermission: string[]
 		groupTheme: string,
 		settings: {
-			guidesEnabled: boolean
-			leaderboardEnabled: boolean
-			sessionsEnabled: boolean
 			alliesEnabled: boolean
-			noticesEnabled: boolean
 			policiesEnabled: boolean
+			recommendationsEnabled: boolean
 			widgets: string[]
 		}
 	}
@@ -70,7 +67,8 @@ export async function handler(
 		alliesConfig,
 		noticesConfig,
 		policiesConfig,
-		homeConfig
+		homeConfig,
+		recommendationsConfig
 	] = await Promise.all([
 		getConfig('customization', workspace.groupId),
 		prisma.role.findMany({
@@ -103,7 +101,8 @@ export async function handler(
 		getConfig('allies', workspace.groupId),
 		getConfig('notices', workspace.groupId),
 		getConfig('policies', workspace.groupId),
-		getConfig('home', workspace.groupId)
+		getConfig('home', workspace.groupId),
+		getConfig('recommendations', workspace.groupId)
 	]);
 	
 	console.log(`All data fetched after ${new Date().getTime() - time.getTime()}ms`)
@@ -160,6 +159,7 @@ export async function handler(
 		"Logbook promotion": "logbook_promotion",
 		"Logbook demotion": "logbook_demotion",
 		"Logbook termination": "logbook_termination",
+		"Logbook resignation": "logbook_resignation",
 		"Rank users": "rank_users",
 		"Create alliances": "create_alliances",
 		"Delete alliances": "delete_alliances",
@@ -191,12 +191,9 @@ export async function handler(
 		roles: roles,
 		yourRole: user.roles[0].id,
 		settings: {
-			guidesEnabled: guidesConfig?.enabled || false,
-			leaderboardEnabled: leaderboardConfig?.enabled || false,
-			sessionsEnabled: sessionsConfig?.enabled || false,
 			alliesEnabled: alliesConfig?.enabled || false,
-			noticesEnabled: noticesConfig?.enabled || false,
 			policiesEnabled: policiesConfig?.enabled || false,
+			recommendationsEnabled: recommendationsConfig?.enabled || false,
 			widgets: homeConfig?.widgets || []
 		}
 	} })
