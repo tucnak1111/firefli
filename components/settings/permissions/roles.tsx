@@ -117,6 +117,7 @@ const RolesManager: FC<Props> = ({ roles, setRoles, grouproles }) => {
       "Logbook - Promotion": "logbook_promotion",
       "Logbook - Demotion": "logbook_demotion",
       "Logbook - Termination": "logbook_termination",
+      "Logbook - Resignation": "logbook_resignation",
       "Logbook - Use Ranking Integration": "rank_users",
     },
     Alliances: {
@@ -130,6 +131,13 @@ const RolesManager: FC<Props> = ({ roles, setRoles, grouproles }) => {
       "Add visits": "add_alliance_visits",
       "Edit visits": "edit_alliance_visits",
       "Delete visits": "delete_alliance_visits",
+    },
+    Recommendations: {
+      "View recommendations": "view_recommendations",
+      "Post recommendations": "post_recommendations",
+      "Comment on recommendations": "comment_recommendations",
+      "Vote on recommendations": "vote_recommendations",
+      "Manage recommendations": "manage_recommendations",
     },
     Settings: {
       "Admin (Manage workspace)": "admin",

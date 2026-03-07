@@ -48,6 +48,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
     const infoUsers = users.map((user: any) => {
       return {
+        userid: user.userid.toString(),
         username: user.username,
         thumbnail: getThumbnail(user.userid),
       };
