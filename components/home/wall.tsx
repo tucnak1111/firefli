@@ -117,9 +117,6 @@ const Wall: React.FC = () => {
 												{post.author.departments[0].name}
 											</span>
 										)}
-										<span className="text-sm text-zinc-500 dark:text-zinc-400">
-											{moment(post.createdAt).format("MMM D")}
-										</span>
 									</div>
 									{post.author.rankName && (
 										<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -138,6 +135,9 @@ const Wall: React.FC = () => {
 											/>
 										</div>
 									)}
+									<span className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 block">
+										{moment(post.createdAt).format("MMM D")}
+									</span>
 								</div>
 							</div>
 						</div>
