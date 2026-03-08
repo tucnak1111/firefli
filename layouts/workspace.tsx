@@ -187,7 +187,7 @@ const workspace: LayoutProps = ({ children }) => {
 			"bg-black": colors.black,
 			"bg-zinc-500": colors.gray[500],
 		};
-		const hex = hexRgb(themes[groupTheme] || "#FF0099");
+		const hex = hexRgb(themes[groupTheme] || "#9300df");
 		return `${hex.red} ${hex.green} ${hex.blue}`;
 	};
 

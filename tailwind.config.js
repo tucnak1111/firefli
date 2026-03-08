@@ -8,7 +8,7 @@ module.exports = {
 	theme: {
 	  extend: {
 		colors: {
-		  firefli: "#3498db",
+		  firefli: "#9300df",
 		  primary: 'rgb(var(--group-theme) / <alpha-value>)',
 		},
 	  },
