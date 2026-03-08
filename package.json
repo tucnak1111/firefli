@@ -26,7 +26,6 @@
     "@popperjs/core": "^2.11.8",
     "@prisma/adapter-pg": "^7.4.2",
     "@radix-ui/react-tooltip": "^1.1.2",
-    "@relatiohq/opencloud": "^1.10.2",
     "@tabler/icons": "^2.47.0",
     "@tabler/icons-react": "^3.34.0",
     "@tailwindcss/forms": "^0.5.7",

@@ -594,11 +594,6 @@ export async function checkGroupRoles(groupID: number) {
     );
     const userRoleMap = new Map<number, { roleId: number; username: string; displayName: string }>();
     const assignedGroupRoleIds = new Set<number>();
-    const roleIdToRankNumber = new Map<number, number>();
-    for (const rank of ranks) {
-      roleIdToRankNumber.set(rank.id, rank.rank);
-    }
-    
     for (const workspaceRole of rs) {
       if (workspaceRole.groupRoles && workspaceRole.groupRoles.length > 0) {
         for (const grId of workspaceRole.groupRoles) {
@@ -802,14 +797,12 @@ export async function checkGroupRoles(groupID: number) {
               },
             },
             update: {
-              rankId: BigInt(roleIdToRankNumber.get(roleId) || 0),
-              roleId: BigInt(roleId),
+              rankId: BigInt(roleId),
             },
             create: {
               userId: BigInt(userId),
               workspaceGroupId: groupID,
-              rankId: BigInt(roleIdToRankNumber.get(roleId) || 0),
-              roleId: BigInt(roleId),
+              rankId: BigInt(roleId),
             },
           })
           .catch((error) => {
@@ -906,13 +899,11 @@ export async function checkGroupRoles(groupID: number) {
                   },
                   update: {
                     rankId: BigInt(0),
-                    roleId: null,
                   },
                   create: {
                     userId: user.userid,
                     workspaceGroupId: groupID,
                     rankId: BigInt(0),
-                    roleId: null,
                   },
                 })
                 .catch((error) => {
@@ -989,7 +980,6 @@ export async function checkGroupRoles(groupID: number) {
         }
         
         const currentRobloxRoleId = userRankData.roleId;
-        const currentRobloxRankNumber = roleIdToRankNumber.get(currentRobloxRoleId) || 0;
         
         await prisma.rank
           .upsert({
@@ -1000,14 +990,12 @@ export async function checkGroupRoles(groupID: number) {
               },
             },
             update: {
-              rankId: BigInt(currentRobloxRankNumber),
-              roleId: BigInt(currentRobloxRoleId),
+              rankId: BigInt(currentRobloxRoleId),
             },
             create: {
               userId: user.userid,
               workspaceGroupId: groupID,
-              rankId: BigInt(currentRobloxRankNumber),
-              roleId: BigInt(currentRobloxRoleId),
+              rankId: BigInt(currentRobloxRoleId),
             },
           })
           .catch((error) => {
@@ -1199,51 +1187,6 @@ export async function checkGroupRoles(groupID: number) {
       }
 
       console.log(`[Refresh] Completed role cleanup for group ${groupID}`);
-      const orphanedMembers = await prisma.workspaceMember.findMany({
-        where: {
-          workspaceGroupId: groupID,
-          isAdmin: { not: true },
-          user: {
-            roles: {
-              none: {
-                workspaceGroupId: groupID,
-              },
-            },
-          },
-        },
-        select: {
-          userId: true,
-        },
-      });
-
-      if (orphanedMembers.length > 0) {
-        for (const member of orphanedMembers) {
-          try {
-            await prisma.departmentMember.deleteMany({
-              where: {
-                workspaceGroupId: groupID,
-                userId: member.userId,
-              },
-            });
-            await prisma.workspaceMember.delete({
-              where: {
-                workspaceGroupId_userId: {
-                  workspaceGroupId: groupID,
-                  userId: member.userId,
-                },
-              },
-            });
-          } catch (error) {
-            console.error(
-              `[Refresh] Failed to remove workspaceMember for user ${member.userId}:`,
-              error
-            );
-          }
-        }
-        console.log(
-          `[Refresh] Cleaned up ${orphanedMembers.length} workspaceMember entries`
-        );
-      }
     } catch (error) {
       console.error(
         `[Refresh] Error during role cleanup for group ${groupID}:`,
@@ -1298,7 +1241,6 @@ export async function checkSpecificUser(userID: number) {
     
     const membership = userGroupMemberships.get(w.groupId);
     const userRoleId = membership?.roleId || null;
-    const userRankNumber = membership?.rank || 0;
     
     await prisma.rank.upsert({
       where: {
@@ -1308,14 +1250,12 @@ export async function checkSpecificUser(userID: number) {
         },
       },
       update: {
-        rankId: BigInt(userRankNumber),
-        roleId: userRoleId ? BigInt(userRoleId) : null,
+        rankId: BigInt(userRoleId || 0),
       },
       create: {
         userId: BigInt(userID),
         workspaceGroupId: w.groupId,
-        rankId: BigInt(userRankNumber),
-        roleId: userRoleId ? BigInt(userRoleId) : null,
+        rankId: BigInt(userRoleId || 0),
       },
     });
 
