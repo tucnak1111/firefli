@@ -206,21 +206,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           rankAfter = newRank;
           rankNameAfter = newRankName;
 
-          await prisma.rank.upsert({
-            where: {
-              userId_workspaceGroupId: {
-                userId: BigInt(numericUserId),
-                workspaceGroupId: workspaceId,
-              },
-            },
-            update: { rankId: BigInt(newRank) },
-            create: {
-              userId: BigInt(numericUserId),
-              workspaceGroupId: workspaceId,
-              rankId: BigInt(newRank),
-            },
-          });
-
           let rolesetIdForSync = newRolesetId;
           if (!rolesetIdForSync) {
             try {
@@ -228,6 +213,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               rolesetIdForSync = fallbackInfo?.id || null;
             } catch {}
           }
+          const rankIdToStore = rolesetIdForSync || newRank;
+          await prisma.rank.upsert({
+            where: {
+              userId_workspaceGroupId: {
+                userId: BigInt(numericUserId),
+                workspaceGroupId: workspaceId,
+              },
+            },
+            update: { rankId: BigInt(rankIdToStore) },
+            create: {
+              userId: BigInt(numericUserId),
+              workspaceGroupId: workspaceId,
+              rankId: BigInt(rankIdToStore),
+            },
+          });
 
           if (rolesetIdForSync) {
             const role = await prisma.role.findFirst({

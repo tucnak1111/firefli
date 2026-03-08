@@ -73,7 +73,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res
       .status(405)
       .json({ success: false, error: "Method not allowed" });
-  const { type, notes, targetRank, notifyDiscord, terminationAction, banDeleteDays } = req.body;
+  const { type, notes, targetRole, notifyDiscord, terminationAction, banDeleteDays } = req.body;
   if (!type || !notes)
     return res
       .status(400)
@@ -301,10 +301,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
           result = await rankingProvider.terminateUser(userId);
           break;
         case "rank_change":
-          if (!targetRank || isNaN(targetRank)) {
+          if (!targetRole || isNaN(targetRole)) {
             return res.status(400).json({
               success: false,
-              error: "Target rank is required for rank change.",
+              error: "Target role ID is required for rank change.",
             });
           }
           try {
@@ -317,8 +317,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
             if (adminUserRank) {
               const adminRank = Number(adminUserRank.rankId);
-
-              if (parseInt(targetRank) >= adminRank) {
+              const roles = await noblox.getRoles(workspaceGroupId);
+              const targetRoleData = roles.find(r => r.id === parseInt(targetRole));
+              if (!targetRoleData) {
+                return res.status(400).json({
+                  success: false,
+                  error: "Invalid role ID provided.",
+                });
+              }
+              const targetRankNumber = targetRoleData.rank;
+              if (targetRankNumber >= adminRank) {
                 const adminUser = await prisma.user.findFirst({
                   where: {
                     userid: BigInt(req.session.userid),
@@ -352,7 +360,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
           result = await rankingProvider.setUserRank(
             userId,
-            parseInt(targetRank)
+            parseInt(targetRole)
           );
           break;
       }
@@ -529,7 +537,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
         rankAfter = newRank;
         rankNameAfter = newRankName;
-
+        let rolesetIdForSync = newRolesetId;
+        if (!rolesetIdForSync) {
+          try {
+            const fallbackInfo = await noblox.getRole(workspaceGroupId, newRank);
+            rolesetIdForSync = fallbackInfo?.id || null;
+          } catch {}
+        }
+        const rankIdToStore = rolesetIdForSync || newRank;
         await prisma.rank.upsert({
           where: {
             userId_workspaceGroupId: {
@@ -538,24 +553,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
             },
           },
           update: {
-            rankId: BigInt(newRank),
+            rankId: BigInt(rankIdToStore),
           },
           create: {
             userId: BigInt(userId),
             workspaceGroupId: workspaceGroupId,
-            rankId: BigInt(newRank),
+            rankId: BigInt(rankIdToStore),
           },
         });
 
         // Sync Firefli workspace role based on the new Roblox group role
-        let rolesetIdForSync = newRolesetId;
-        if (!rolesetIdForSync) {
-          // Fallback: fetch via noblox if we don't have it yet
-          try {
-            const fallbackInfo = await noblox.getRole(workspaceGroupId, newRank);
-            rolesetIdForSync = fallbackInfo?.id || null;
-          } catch {}
-        }
         if (rolesetIdForSync) {
           const role = await prisma.role.findFirst({
             where: {

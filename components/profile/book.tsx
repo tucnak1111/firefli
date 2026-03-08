@@ -157,7 +157,7 @@ const Book: FC<Props> = ({ userBook, onRefetch, logbookPermissions }) => {
           (rank) => rank.id.toString() === targetRank
         );
         if (selectedRank) {
-          payload.targetRank = selectedRank.rank;
+          payload.targetRole = selectedRank.id;
         } else {
           toast.error("Invalid rank selected.");
           setIsSubmitting(false);

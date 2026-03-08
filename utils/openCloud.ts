@@ -259,7 +259,11 @@ export class RobloxCloudRankingAPI {
     }
   }
 
-  async setUserRank(userId: number, rankNumber: number): Promise<RankingResponse> {
+  async setUserRank(userId: number, roleId: number): Promise<RankingResponse> {
+    return this.setUserRole(userId, roleId);
+  }
+
+  async setUserRankByNumber(userId: number, rankNumber: number): Promise<RankingResponse> {
     try {
       const roles = await this.getGroupRoles();
       const targetRole = roles.find(r => r.rank === rankNumber);
