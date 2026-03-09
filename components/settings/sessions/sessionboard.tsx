@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
-import { IconPalette, IconChevronDown, IconDownload, IconExternalLink } from "@tabler/icons-react";
-import toast from "react-hot-toast";
-import { Listbox } from "@headlessui/react";
+import { IconChalkboard, IconDownload, IconExternalLink } from "@tabler/icons-react";
 
 
 const SessionBoard = () => {
@@ -13,7 +9,7 @@ const SessionBoard = () => {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <IconPalette size={20} className="text-primary" />
+          <IconChalkboard size={20} className="text-primary" />
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
             Session Board Module
           </h3>
