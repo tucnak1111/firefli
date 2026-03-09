@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/utils/database";
 import { validateApiKey } from "@/utils/api-auth";
 import { withPublicApiRateLimit } from "@/utils/prtl"
+import { getSessionStatus } from "@/utils/session-notification"
 
 async function handler(
   req: NextApiRequest,
@@ -67,6 +68,7 @@ async function handler(
             description: true,
             gameId: true,
             slots: true,
+            statues: true,
           },
         },
         sessionTag: {
@@ -127,13 +129,14 @@ async function handler(
         slot: user.slot,
         role: user.roleID,
       })),
-      status: session.ended
-        ? "ended"
-        : session.startedAt
-        ? "in-progress"
-        : session.date < new Date()
-        ? "missed"
-        : "scheduled",
+      status: (() => {
+        const statues = (session.sessionType as any).statues || [];
+        const computedStatus = getSessionStatus(session.date, session.duration, statues, session.ended);
+        if (computedStatus) return computedStatus.toLowerCase().replace(/\s+/g, '-');
+        if (session.ended) return 'ended';
+        if (session.startedAt) return 'in-progress';
+        return 'scheduled';
+      })(),
     }));
 
     const sessionsByDate = formattedSessions.reduce(

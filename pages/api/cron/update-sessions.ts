@@ -20,11 +20,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   try {
     const now = new Date();
+    const lookahead = new Date(now.getTime() + 30 * 60 * 1000);
     const candidates = await prisma.session.findMany({
       where: {
         ended: null,
         date: {
-          lte: now,
+          lte: lookahead,
         },
       },
       include: {
@@ -45,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         editSessionNotification(s.id, 'Concluded').catch(() => {});
         updatedEnded++;
       } else {
-        if (!s.startedAt) {
+        if (!s.startedAt && s.date <= now) {
           await prisma.session.update({ where: { id: s.id }, data: { startedAt: s.date } });
           updatedStarted++;
 

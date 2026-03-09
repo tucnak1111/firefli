@@ -38,7 +38,6 @@ export function getSessionStatus(
   if (ended || now > endTime) return 'Concluded';
 
   const minutesFromStart = (now.getTime() - new Date(date).getTime()) / 1000 / 60;
-  if (minutesFromStart < 0) return null;
 
   const sorted = [...statues].sort((a: any, b: any) => b.timeAfter - a.timeAfter);
   for (const status of sorted) {
