@@ -1,4 +1,4 @@
 import SessionTags from './sessiontags';
 import SessionColors from './sessioncolors';
-
-export { SessionTags, SessionColors };
+import SessionBoard from './sessionboard';
+export { SessionTags, SessionColors, SessionBoard };
