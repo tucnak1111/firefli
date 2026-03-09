@@ -29,7 +29,7 @@ const SessionBoard = () => {
             Download module
           </button>
           <a
-            href="https://docs.firefli.co/workspace/sessions"
+            href="https://docs.firefli.net/workspace/sessions"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors flex items-center gap-2"
