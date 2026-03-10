@@ -75,6 +75,7 @@ async function handler(
           select: {
             id: true,
             name: true,
+            color: true,
           },
         },
         users: {
@@ -113,6 +114,7 @@ async function handler(
         ? {
             id: session.sessionTag.id,
             name: session.sessionTag.name,
+            color: session.sessionTag.color,
           }
         : null,
       host: session.owner
