@@ -122,13 +122,18 @@ async function handler(
             thumbnail: session.owner.picture,
           }
         : null,
-      participants: session.users.map((user) => ({
-        userId: Number(user.user.userid),
-        username: user.user.username,
-        thumbnail: user.user.picture,
-        slot: user.slot,
-        role: user.roleID,
-      })),
+      participants: session.users.map((user) => {
+        const slots = (session.sessionType.slots as any[]) || [];
+        const matchingSlot = slots.find((s: any) => s.id === user.roleID);
+        return {
+          userId: Number(user.user.userid),
+          username: user.user.username,
+          thumbnail: user.user.picture,
+          slot: user.slot,
+          role: user.roleID,
+          roleName: matchingSlot?.name || null,
+        };
+      }),
       status: (() => {
         const statues = (session.sessionType as any).statues || [];
         const computedStatus = getSessionStatus(session.date, session.duration, statues, session.ended);
