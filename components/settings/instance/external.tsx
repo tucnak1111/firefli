@@ -20,6 +20,7 @@ const ExternalServices: React.FC<ExternalServicesProps> & { title: string } = ({
   const [rankingToken, setRankingToken] = useState<string>("");
   const [rankingWorkspaceId, setRankingWorkspaceId] = useState<string>("");
   const [robloxApiKey, setRobloxApiKey] = useState<string>("");
+  const [storedRobloxApiKeyMask, setStoredRobloxApiKeyMask] = useState<string>("");
   const [robloxApiKeyStatus, setRobloxApiKeyStatus] = useState<"untested" | "testing" | "valid" | "invalid">("untested");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,15 +32,23 @@ const ExternalServices: React.FC<ExternalServicesProps> & { title: string } = ({
       setIsLoading(true);
       try {
         const response = await fetch(
-          `/api/workspace/${workspaceId}/settings/external`
+          `/api/workspace/${workspaceId}/settings/external?validate=true`
         );
         if (response.ok) {
           const data = await response.json();
           setRankingProvider(data.rankingProvider || "");
           setRankingToken(data.rankingToken || "");
           setRankingWorkspaceId(data.rankingWorkspaceId || "");
-          setRobloxApiKey(data.robloxApiKey || "");
-          if (data.robloxApiKey) setRobloxApiKeyStatus("valid");
+          setStoredRobloxApiKeyMask(data.robloxApiKey || "");
+          setRobloxApiKey("");
+          const hasStoredKey = !!data.robloxApiKey;
+          if (!hasStoredKey) {
+            setRobloxApiKeyStatus("untested");
+          } else if (data.robloxApiKeyValid === false) {
+            setRobloxApiKeyStatus("invalid");
+          } else {
+            setRobloxApiKeyStatus("valid");
+          }
         }
       } catch (error) {
         console.error("Failed to fetch external services settings:", error);
@@ -75,12 +84,17 @@ const ExternalServices: React.FC<ExternalServicesProps> & { title: string } = ({
             rankingProvider,
             rankingToken,
             rankingWorkspaceId,
-            robloxApiKey: robloxApiKey || null,
+            robloxApiKey: robloxApiKey.trim() || undefined,
           }),
         }
       );
 
       if (response.ok) {
+        if (robloxApiKey.trim()) {
+          setStoredRobloxApiKeyMask("••••••••" + robloxApiKey.trim().slice(-8));
+          setRobloxApiKey("");
+          setRobloxApiKeyStatus("valid");
+        }
         triggerToast.success("External services settings saved successfully!");
       } else {
         const error = await response.json();
@@ -245,7 +259,11 @@ const ExternalServices: React.FC<ExternalServicesProps> & { title: string } = ({
                   setRobloxApiKey(e.target.value);
                   setRobloxApiKeyStatus("untested");
                 }}
-                placeholder="Enter your Roblox Open Cloud API key"
+                placeholder={
+                  storedRobloxApiKeyMask
+                    ? "Enter a new key to replace it"
+                    : "Enter your Roblox Open Cloud API key"
+                }
                 disabled={isLoading}
                 className={clsx(
                   "flex-1 px-3 py-2 border rounded-lg text-sm",
@@ -305,6 +323,11 @@ const ExternalServices: React.FC<ExternalServicesProps> & { title: string } = ({
                   : "Test Key"}
               </button>
             </div>
+            {storedRobloxApiKeyMask && !robloxApiKey.trim() && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
+                Saved key: <span className="font-mono">{storedRobloxApiKeyMask}</span>
+              </p>
+            )}
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
               Your API key needs the following permissions. Go to{" "}
               <a

@@ -30,18 +30,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       userApiValid = userRes.ok;
     } catch {}
 
-    if (!userApiValid) {
-      return res.status(200).json({
-        valid: false,
-        message:
-          "User API with user.social:read scope required.",
-      });
-    }
-
     return res.status(200).json({
       valid: true,
       memberCount: result.members.length,
-      message: "Successfully connected! API key is valid for this group.",
+      message: userApiValid
+        ? "Successfully connected! API key is valid for this group."
+        : "Group access is valid. Add user.social:read if you want username/displayname lookups.",
+      requiresUserSocialRead: !userApiValid,
     });
   } catch (error: any) {
     console.error("[test-roblox-key] Validation failed:", error.message);
