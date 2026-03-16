@@ -126,6 +126,23 @@ const Activity: pageWithLayout = () => {
         if (profileData.assignments) {
           setMyAssignments(profileData.assignments);
         }
+
+        let sessionHistoryData: any[] = [];
+        try {
+          const sessionsRes = await axios.get(
+            `/api/workspace/${id}/profile/${login.userId}/sessions`
+          );
+          if (sessionsRes.data?.success) {
+            sessionHistoryData = sessionsRes.data.sessions || [];
+          }
+        } catch (sessionHistoryErr: any) {
+          console.error(
+            "[Activity] Session history API failed:",
+            sessionHistoryErr.response?.status,
+            sessionHistoryErr.response?.data
+          );
+        }
+
         const timelineData = [];
         if (profileData.sessions) {
           timelineData.push(
@@ -135,6 +152,16 @@ const Activity: pageWithLayout = () => {
             }))
           );
         }
+
+        if (sessionHistoryData.length > 0) {
+          timelineData.push(
+            ...sessionHistoryData.map((s: any) => ({
+              ...s,
+              __type: "sessionEntry",
+            }))
+          );
+        }
+
         if (profileData.adjustments) {
           timelineData.push(
             ...profileData.adjustments.map((a: any) => ({
@@ -143,22 +170,18 @@ const Activity: pageWithLayout = () => {
             }))
           );
         }
-        if (profileData.notices) {
-          const approvedNotices = profileData.notices.filter(
-            (n: any) => n.approved === true
-          );
-          timelineData.push(
-            ...approvedNotices.map((n: any) => ({ ...n, __type: "notice" }))
-          );
-        }
         timelineData.sort((a, b) => {
           const aDate =
             a.__type === "adjustment"
               ? new Date(a.createdAt).getTime()
+              : a.__type === "sessionEntry"
+              ? new Date(a.date).getTime()
               : new Date(a.startTime || a.createdAt).getTime();
           const bDate =
             b.__type === "adjustment"
               ? new Date(b.createdAt).getTime()
+              : b.__type === "sessionEntry"
+              ? new Date(b.date).getTime()
               : new Date(b.startTime || b.createdAt).getTime();
           return bDate - aDate;
         });
@@ -629,7 +652,7 @@ const Activity: pageWithLayout = () => {
                 <IconCalendarTime className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-lg font-medium text-zinc-900 dark:text-white">
-                Your Activity Timeline
+                Your Timeline
               </h2>
             </div>
             <div className="p-4">
@@ -743,28 +766,35 @@ const Activity: pageWithLayout = () => {
                       );
                     }
                     if (item.__type === "notice") {
+                      return null;
+                    }
+                    if (item.__type === "sessionEntry") {
+                      const userParticipation = item.users?.find(
+                        (u: any) => u.userid?.toString() === login.userId?.toString()
+                      );
+                      const userRole =
+                        userParticipation && item.sessionType?.slots
+                          ? item.sessionType.slots[userParticipation.slot]
+                          : null;
                       return (
-                        <div key={`notice-${item.id}`}>
+                        <div key={`session-entry-${item.id}`}>
                           <li className="mb-6 ml-6">
-                            <span className="flex absolute -left-3 justify-center items-center w-6 h-6 bg-primary rounded-full ring-4 ring-white">
-                              <img
-                                className="rounded-full"
-                                src={myData?.picture || "/default-avatar.jpg"}
-                                alt="timeline avatar"
-                              />
+                            <span className="flex absolute -left-3 justify-center items-center w-6 h-6 bg-indigo-500 rounded-full ring-4 ring-white">
+                              <IconCalendarStats className="w-3.5 h-3.5 text-white" />
                             </span>
-                            <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg border border-zinc-100 dark:border-zinc-600">
-                              <div className="flex justify-between items-center mb-1">
-                                <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                                  Inactivity Notice
+                            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                              <div className="flex justify-between items-center mb-1 gap-2">
+                                <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
+                                  Session Entry: {item.sessionType?.name || "Session"}
                                 </p>
-                                <time className="text-xs text-zinc-500 dark:text-zinc-400">
-                                  {moment(item.startTime).format("DD MMM")} -{" "}
-                                  {moment(item.endTime).format("DD MMM YYYY")}
+                                <time className="text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                                  {moment(item.date).format("DD MMM YYYY, HH:mm")}
                                 </time>
                               </div>
                               <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                                {item.reason}
+                                {item.ownerId?.toString() === login.userId?.toString()
+                                  ? "You hosted this session"
+                                  : `You participated${userRole?.name ? ` as ${userRole.name}` : ""}`}
                               </p>
                             </div>
                           </li>

@@ -60,6 +60,18 @@ function getRandomBg(userid: string, username?: string) {
   return BG_COLORS[index];
 }
 
+function getSessionUserAvatar(
+  workspaceId: string | number | undefined,
+  userId?: string | number | null,
+  picture?: string | null
+) {
+  if (picture) return picture;
+  if (workspaceId && userId) {
+    return `/api/workspace/${workspaceId}/avatar/${userId}`;
+  }
+  return "/default-avatar.jpg";
+}
+
 export const getServerSideProps = withPermissionCheckSsr(
   async ({ query, req }) => {
     const currentDate = new Date();
@@ -437,7 +449,11 @@ const WeeklyCalendar: React.FC<{
                                   )}`}
                                 >
                                   <img
-                                    src={session.owner.picture}
+                                    src={getSessionUserAvatar(
+                                      workspaceId,
+                                      session.owner.userid,
+                                      session.owner.picture
+                                    )}
                                     className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-zinc-800"
                                     onError={(e) => {
                                       e.currentTarget.src =
@@ -450,11 +466,15 @@ const WeeklyCalendar: React.FC<{
                               {coHost && (
                                 <div
                                   className={`w-8 h-8 rounded-full flex items-center justify-center ${getRandomBg(
-                                    coHost.user.userid.toString()
+                                    (coHost.user?.userid || coHost.userid).toString()
                                   )} ${session.owner ? "-ml-2" : ""}`}
                                 >
                                   <img
-                                    src={coHost.user.picture}
+                                    src={getSessionUserAvatar(
+                                      workspaceId,
+                                      coHost.user?.userid || coHost.userid,
+                                      coHost.user?.picture || null
+                                    )}
                                     className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-zinc-800"
                                     onError={(e) => {
                                       e.currentTarget.src =
@@ -1068,10 +1088,11 @@ const Home: pageWithLayout<pageProps> = (props) => {
                                 )}`}
                               >
                                 <img
-                                  src={
-                                    session.owner.picture ||
-                                    "/default-avatar.jpg"
-                                  }
+                                  src={getSessionUserAvatar(
+                                    router.query.id as string,
+                                    session.owner.userid,
+                                    session.owner.picture
+                                  )}
                                   className="w-7 h-7 rounded-full object-cover"
                                   onError={(e) => {
                                     e.currentTarget.src =
@@ -1084,14 +1105,15 @@ const Home: pageWithLayout<pageProps> = (props) => {
                             {coHost && (
                               <div
                                 className={`w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center ring-2 ring-white dark:ring-zinc-800 ${getRandomBg(
-                                  coHost.user.userid.toString()
+                                  (coHost.user?.userid || coHost.userid).toString()
                                 )} ${session.owner ? "-ml-2" : ""}`}
                               >
                                 <img
-                                  src={
-                                    coHost.user.picture ||
-                                    "/default-avatar.jpg"
-                                  }
+                                  src={getSessionUserAvatar(
+                                    router.query.id as string,
+                                    coHost.user?.userid || coHost.userid,
+                                    coHost.user?.picture || null
+                                  )}
                                   className="w-7 h-7 rounded-full object-cover"
                                   onError={(e) => {
                                     e.currentTarget.src =
