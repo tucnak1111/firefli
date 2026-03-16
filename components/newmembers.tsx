@@ -236,8 +236,8 @@ export default function NewToTeam() {
   return (
     <>
       <div className="overflow-visible">
-        <div className="flex gap-6 overflow-y-visible pb-4 px-1">
-          {members.slice(0, 6).map((m) => {
+        <div className="flex gap-6 overflow-x-auto overflow-y-visible pb-4 px-1 -mx-1 sm:mx-0 sm:overflow-visible touch-pan-x">
+          {members.map((m) => {
             const isCurrentUser = currentUserId && m.userid === currentUserId;
             const isPlaying = playingId === m.userid;
 

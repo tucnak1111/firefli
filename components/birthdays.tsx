@@ -115,7 +115,7 @@ export default function Birthdays() {
       {showConfetti && cardSize.width > 0 && cardSize.height > 0 && (
         <Confetti width={cardSize.width} height={cardSize.height} numberOfPieces={300} recycle={true} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
       )}
-      <div className="flex flex-col gap-3">
+      <div className="flex max-h-[55vh] sm:max-h-none overflow-y-auto sm:overflow-visible flex-col gap-3 pr-1 sm:pr-0">
         {usersWithDays.map(user => (
           <div
             key={user.userid}
