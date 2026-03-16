@@ -121,7 +121,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       if (existingRecommendation) {
         return res.status(409).json({
           success: false,
-          error: "This user already has an active recommendation. Archive or delete it before creating a new one",
+          error: "This user already has an active recommendation.",
         })
       }
 
