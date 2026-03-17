@@ -820,7 +820,7 @@ const Quotas: pageWithLayout<pageProps> = ({
                           />
                         </div>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                          {Math.min(quota.percentage, 100).toFixed(0)}% complete
+                          {quota.percentage.toFixed(0)}% complete
                         </p></>)}
                       </div>
                       <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-600">

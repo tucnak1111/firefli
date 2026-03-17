@@ -348,7 +348,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
         quotaProgress[quota.id] = {
           value: currentValue,
-          percentage: Math.min(percentage, 100),
+          percentage,
           name: quota.name,
           type: quota.type,
           requirement: quota.value,
