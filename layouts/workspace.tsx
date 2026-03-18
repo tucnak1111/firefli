@@ -165,7 +165,7 @@ const workspace: LayoutProps = ({ children }) => {
 			"bg-sky-400": colors.sky[400],
 			"bg-indigo-400": colors.indigo[400],
 			"bg-violet-400": colors.violet[400],
-			"bg-firefli": "#3498db",
+			"bg-firefli": "#9300df",
 			"bg-rose-600": colors.rose[600],
 			"bg-orange-600": colors.orange[600],
 			"bg-amber-600": colors.amber[600],
