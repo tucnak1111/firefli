@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { IconCake } from '@tabler/icons-react';
 import { detectUserTimezone } from '@/utils/timezoneUtils';
 
 interface WorkspaceBirthdayPromptProps {
@@ -86,15 +87,15 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
         <div className="px-6 py-5 sm:px-8">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 mt-0.5">
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[color:rgb(52,152,219)] to-[color:rgb(52,152,219,0.7)] flex items-center justify-center text-white text-xl shadow-md">
-                🎂
+              <div className="h-12 w-12 rounded-lg bg-primary flex items-center justify-center text-white text-xl shadow-md">
+                <IconCake className="h-6 w-6" aria-hidden="true" />
               </div>
             </div>
 
             <div className="flex-1">
               <h2 id="bday-title" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Set your birthday</h2>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sharing your birthday helps with celebrations!</p>
-              <p className='text-zinc-500 dark:text-zinc-400'>You can skip if you'd prefer not to.</p>
+              <p className='mt-1 text-sm text-zinc-500 dark:text-zinc-400'>You can skip if you'd prefer not to.</p>
             </div>
           </div>
 
@@ -131,7 +132,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
               <button
                 type="submit"
                 disabled={loading || !day || !month}
-                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[color:rgb(52,152,219)] hover:bg-[color:rgb(52,152,219,0.9)] text-white font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : 'Save'}
               </button>
