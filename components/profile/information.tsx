@@ -277,7 +277,7 @@ export function InformationTab({
             <button
               onClick={handleSave}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-white bg-[#ff0099] hover:bg-[#ff0099]/90 transition flex-1 sm:flex-initial"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 transition flex-1 sm:flex-initial"
             >
               <IconCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Save
