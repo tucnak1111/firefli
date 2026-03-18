@@ -882,7 +882,7 @@ const EditDoc: pageWithLayout<any> = ({ roles, departments, document, canEdit, c
             {canEdit && (
               <button
                 onClick={form.handleSubmit(updateDoc)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ff0099] hover:bg-[#ff0099]/95 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/95 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all"
               >
                 <IconCheck className="w-4 h-4" />
                 Save Changes
