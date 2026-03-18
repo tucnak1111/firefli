@@ -290,8 +290,8 @@ export function InformationTab({
         <div className="space-y-3">
           <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-[#ff0099]/10 rounded-lg">
-                <IconUser className="w-5 h-5 text-[#ff0099]" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <IconUser className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -431,7 +431,7 @@ export function InformationTab({
                             value=""
                             className={({ active }) =>
                               `relative cursor-pointer select-none py-2 px-3 ${
-                                active ? "bg-[#ff0099]/10 text-[#ff0099]" : "text-zinc-400 dark:text-zinc-500"
+                                active ? "bg-primary/10 text-primary" : "text-zinc-400 dark:text-zinc-500"
                               }`
                             }
                           >
@@ -442,7 +442,7 @@ export function InformationTab({
                               key={tz}
                               className={({ active }) =>
                                 `relative cursor-pointer select-none py-2 px-3 ${
-                                  active ? "bg-[#ff0099]/10 text-[#ff0099]" : "text-zinc-900 dark:text-white"
+                                  active ? "bg-primary/10 text-primary" : "text-zinc-900 dark:text-white"
                                 }`
                               }
                               value={tz}
@@ -501,7 +501,7 @@ export function InformationTab({
                                   key={dept.id}
                                   className={({ active }) =>
                                     `relative cursor-pointer select-none py-2 pl-3 pr-9 ${
-                                      active ? "bg-[#ff0099]/10 text-[#ff0099]" : "text-zinc-900 dark:text-white"
+                                      active ? "bg-primary/10 text-primary" : "text-zinc-900 dark:text-white"
                                     }`
                                   }
                                   value={dept}
@@ -589,7 +589,7 @@ export function InformationTab({
                           <Combobox.Option
                             className={({ active }) =>
                               `relative cursor-pointer select-none py-2 px-3 ${
-                                active ? "bg-[#ff0099]/10 text-[#ff0099]" : "text-zinc-900 dark:text-white"
+                                active ? "bg-primary/10 text-primary" : "text-zinc-900 dark:text-white"
                               }`
                             }
                             value={null}
@@ -610,7 +610,7 @@ export function InformationTab({
                                 key={member.userid}
                                 className={({ active }) =>
                                   `relative cursor-pointer select-none py-2 px-3 flex items-center gap-2 ${
-                                    active ? "bg-[#ff0099]/10" : ""
+                                    active ? "bg-primary/10" : ""
                                   }`
                                 }
                                 value={member}
