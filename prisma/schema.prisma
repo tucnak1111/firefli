@@ -468,6 +468,7 @@ model UserQuotaCompletion {
   completedBy      BigInt?   // The user who marked it complete (for manager signoff)
   notes            String?
   archived         Boolean   @default(false)
+  archiveCycleId   String    @default("active")
   archiveStartDate DateTime?
   archiveEndDate   DateTime?
   quota            Quota     @relation(fields: [quotaId], references: [id], onDelete: Cascade)
@@ -475,7 +476,7 @@ model UserQuotaCompletion {
   completedByUser  user?     @relation("CompletedByUser", fields: [completedBy], references: [userid])
   workspace        workspace @relation(fields: [workspaceGroupId], references: [groupId])
 
-  @@unique([quotaId, userId, workspaceGroupId, archived])
+  @@unique([quotaId, userId, workspaceGroupId, archived, archiveCycleId])
   @@index([userId, workspaceGroupId])
   @@index([quotaId])
 }

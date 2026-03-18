@@ -9,6 +9,8 @@ type Data = {
   error?: string;
 };
 
+const ACTIVE_ARCHIVE_CYCLE_ID = "active";
+
 export default withPermissionCheck(handler);
 
 async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -75,11 +77,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
     await (prisma as any).userQuotaCompletion.update({
       where: {
-        quotaId_userId_workspaceGroupId_archived: {
+        quotaId_userId_workspaceGroupId_archived_archiveCycleId: {
           quotaId,
           userId: targetUser,
           workspaceGroupId: workspaceId,
           archived: false,
+          archiveCycleId: ACTIVE_ARCHIVE_CYCLE_ID,
         },
       },
       data: {

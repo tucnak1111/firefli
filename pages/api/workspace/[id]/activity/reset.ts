@@ -403,7 +403,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
       } else {
         console.log(`[RESET] No history records to create`);
       }
-      await tx.activityReset.create({
+      const resetRecord = await tx.activityReset.create({
         data: {
           workspaceGroupId,
           resetById: req.session.userid,
@@ -463,13 +463,14 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
         },
       });
 
-      await tx.userQuotaCompletion.updateMany({
+      await (tx as any).userQuotaCompletion.updateMany({
         where: {
           workspaceGroupId,
           archived: { not: true },
         },
         data: {
           archived: true,
+          archiveCycleId: resetRecord.id,
           archiveStartDate: periodStart,
           archiveEndDate: periodEnd,
         },

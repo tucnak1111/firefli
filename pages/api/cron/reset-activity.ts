@@ -382,7 +382,7 @@ async function performReset(workspaceGroupId: number) {
     data: historyRecords,
   });
 
-  await prisma.activityReset.create({
+  const resetRecord = await prisma.activityReset.create({
     data: {
       workspaceGroupId,
       resetAt: new Date(),
@@ -444,13 +444,14 @@ async function performReset(workspaceGroupId: number) {
     },
   });
 
-  await prisma.userQuotaCompletion.updateMany({
+  await (prisma as any).userQuotaCompletion.updateMany({
     where: {
       workspaceGroupId,
       archived: { not: true },
     },
     data: {
       archived: true,
+      archiveCycleId: resetRecord.id,
       archiveStartDate: periodStart,
       archiveEndDate: periodEnd,
     },

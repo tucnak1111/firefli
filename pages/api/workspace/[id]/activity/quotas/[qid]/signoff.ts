@@ -10,6 +10,8 @@ type Data = {
   completion?: any;
 };
 
+const ACTIVE_ARCHIVE_CYCLE_ID = "active";
+
 export default withPermissionCheck(handler, "signoff_custom_quotas");
 
 async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -117,17 +119,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
     const completion = await (prisma as any).userQuotaCompletion.upsert({
       where: {
-        quotaId_userId_workspaceGroupId_archived: {
+        quotaId_userId_workspaceGroupId_archived_archiveCycleId: {
           quotaId,
           userId: targetUser,
           workspaceGroupId: workspaceId,
           archived: false,
+          archiveCycleId: ACTIVE_ARCHIVE_CYCLE_ID,
         },
       },
       create: {
         quotaId,
         userId: targetUser,
         workspaceGroupId: workspaceId,
+        archived: false,
+        archiveCycleId: ACTIVE_ARCHIVE_CYCLE_ID,
         completed: true,
         completedAt: new Date(),
         completedBy: signoffUserId,
