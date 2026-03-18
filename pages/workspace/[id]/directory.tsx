@@ -104,6 +104,8 @@ const BG_COLORS = [
   "bg-green-200",
 ];
 
+const DIRECTORY_API_PAGE_SIZE = 250;
+
 function getRandomBg(userid: string, username?: string) {
   const key = `${userid ?? ""}:${username ?? ""}`;
   let hash = 5381;
@@ -121,7 +123,6 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(50);
   const [totalUsers, setTotalUsers] = useState(0);
   const [rankSort, setRankSort] = useState<"rank-desc" | "rank-asc">(
     "rank-desc",
@@ -133,22 +134,48 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
 
       setIsLoading(true);
       try {
-        const res = await axios.get(`/api/workspace/${id}/views/staff`, {
-          params: {
-            page: pageIndex,
-            pageSize,
-            columns: JSON.stringify([
-              "info",
-              "rankName",
-              "departments",
-              "inactivityNotices",
-            ]),
-            filters: JSON.stringify([]),
-          },
-        });
+        const requestPage = (page: number) =>
+          axios.get(`/api/workspace/${id}/views/staff`, {
+            params: {
+              page,
+              pageSize: DIRECTORY_API_PAGE_SIZE,
+              columns: JSON.stringify([
+                "info",
+                "rankName",
+                "departments",
+                "inactivityNotices",
+              ]),
+              filters: JSON.stringify([]),
+            },
+          });
 
-        setUsers((res.data?.users || []) as StaffUser[]);
-        setTotalUsers(res.data?.pagination?.totalUsers || 0);
+        const firstResponse = await requestPage(0);
+        const firstPageUsers = (firstResponse.data?.users || []) as StaffUser[];
+        const totalApiPages = Math.max(
+          1,
+          Number(firstResponse.data?.pagination?.totalPages) || 1,
+        );
+
+        let allUsers = firstPageUsers;
+
+        if (totalApiPages > 1) {
+          const remainingResponses = await Promise.all(
+            Array.from({ length: totalApiPages - 1 }, (_, index) =>
+              requestPage(index + 1),
+            ),
+          );
+
+          const remainingUsers = remainingResponses.flatMap(
+            (response) => (response.data?.users || []) as StaffUser[],
+          );
+
+          allUsers = [...firstPageUsers, ...remainingUsers];
+        }
+
+        setUsers(allUsers);
+        setTotalUsers(
+          Number(firstResponse.data?.pagination?.totalUsers) || allUsers.length,
+        );
       } catch (error) {
         setUsers([]);
         setTotalUsers(0);
@@ -158,7 +185,7 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
     };
 
     fetchDirectory();
-  }, [id, pageIndex, pageSize]);
+  }, [id]);
 
   const departmentColorMap = useMemo(() => {
     return new Map(
@@ -220,7 +247,15 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
     return sortedGroups;
   }, [departmentPositionMap, rankSort, users]);
 
-  const totalPages = Math.max(1, Math.ceil(totalUsers / pageSize));
+  useEffect(() => {
+    setPageIndex((prev) => Math.min(prev, Math.max(0, groupedUsers.length - 1)));
+  }, [groupedUsers.length]);
+
+  const currentDepartmentGroup = groupedUsers[pageIndex];
+  const currentDepartmentName = currentDepartmentGroup?.[0] ?? "";
+  const currentDepartmentMembers = currentDepartmentGroup?.[1] ?? [];
+
+  const totalPages = Math.max(1, groupedUsers.length);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
@@ -276,138 +311,136 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
           </div>
         ) : (
           <div className="space-y-5">
-            {groupedUsers.map(([departmentName, members]) => (
-              <section
-                key={departmentName}
-                className="bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
-              >
-                <header className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{
-                        backgroundColor:
-                          departmentName === "Unassigned"
-                            ? "#9ca3af"
-                            : departmentColorMap.get(departmentName) ||
-                              "#60a5fa",
-                      }}
-                    />
-                    <h2 className="font-semibold text-zinc-900 dark:text-white truncate">
-                      {departmentName}
-                    </h2>
-                  </div>
-                  <span className="text-xs font-medium px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">
-                    {members.length} on this page
-                  </span>
-                </header>
-
-                <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                  {members.map((user) => (
-                    <button
-                      key={`${departmentName}-${user.info.userId}`}
-                      onClick={() =>
-                        router.push(
-                          `/workspace/${id}/profile/${user.info.userId}`,
-                        )
-                      }
-                      className="text-left flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-white dark:hover:bg-zinc-700/70 transition-colors"
-                    >
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getRandomBg(
-                          String(user.info.userId),
-                          user.info.username || undefined,
-                        )}`}
-                      >
-                        <img
-                          src={user.info.picture || "/default-avatar.jpg"}
-                          alt={user.info.username || String(user.info.userId)}
-                          className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <p className="font-medium text-zinc-900 dark:text-white truncate">
-                            {user.info.displayName && user.info.username
-                              ? `${user.info.displayName} (@${user.info.username})`
-                              : user.info.displayName
-                                ? user.info.displayName
-                                : user.info.username
-                                  ? `@${user.info.username}`
-                                  : user.info.userId}
-                          </p>
-                          {(() => {
-                            const notices = user.inactivityNotices || [];
-                            const now = new Date();
-                            const approved = notices.filter(
-                              (n) =>
-                                n.approved === true &&
-                                n.reviewed === true &&
-                                n.revoked === false,
-                            );
-                            const active = approved.find(
-                              (n) =>
-                                n.endTime &&
-                                new Date(n.startTime as string) <= now &&
-                                new Date(n.endTime) >= now,
-                            );
-                            if (active) {
-                              return (
-                                <span
-                                  className="flex-shrink-0"
-                                  title={`On notice: ${active.reason || "N/A"}`}
-                                >
-                                  <IconBeach className="w-4 h-4 text-amber-500" />
-                                </span>
-                              );
-                            }
-                            const upcoming = approved.find(
-                              (n) => new Date(n.startTime as string) > now,
-                            );
-                            if (upcoming) {
-                              return (
-                                <span
-                                  className="flex-shrink-0"
-                                  title={`Upcoming notice (starts ${new Date(upcoming.startTime as string).toLocaleDateString()})`}
-                                >
-                                  <IconBeach className="w-4 h-4 text-emerald-500" />
-                                </span>
-                              );
-                            }
-                            const past = approved.find(
-                              (n) => n.endTime && new Date(n.endTime) < now,
-                            );
-                            if (past) {
-                              return (
-                                <span
-                                  className="flex-shrink-0"
-                                  title={`Previous notice (ended ${new Date(past.endTime as string).toLocaleDateString()})`}
-                                >
-                                  <IconBeach className="w-4 h-4 text-zinc-400" />
-                                </span>
-                              );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                          {user.rankName || "Guest"}
-                        </p>
-                        <div className="mt-1 flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-                          <IconBuilding className="w-3.5 h-3.5" />
-                          <span className="truncate">
-                            {Array.isArray(user.departments) &&
-                            user.departments.length > 0
-                              ? user.departments.join(", ")
-                              : ""}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+            <section
+              key={currentDepartmentName}
+              className="bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+            >
+              <header className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      backgroundColor:
+                        currentDepartmentName === "Unassigned"
+                          ? "#9ca3af"
+                          : departmentColorMap.get(currentDepartmentName) ||
+                            "#60a5fa",
+                    }}
+                  />
+                  <h2 className="font-semibold text-zinc-900 dark:text-white truncate">
+                    {currentDepartmentName}
+                  </h2>
                 </div>
-              </section>
-            ))}
+                <span className="text-xs font-medium px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">
+                  {currentDepartmentMembers.length} in department
+                </span>
+              </header>
+
+              <div className="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                {currentDepartmentMembers.map((user) => (
+                  <button
+                    key={`${currentDepartmentName}-${user.info.userId}`}
+                    onClick={() =>
+                      router.push(
+                        `/workspace/${id}/profile/${user.info.userId}`,
+                      )
+                    }
+                    className="text-left flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-white dark:hover:bg-zinc-700/70 transition-colors"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getRandomBg(
+                        String(user.info.userId),
+                        user.info.username || undefined,
+                      )}`}
+                    >
+                      <img
+                        src={user.info.picture || "/default-avatar.jpg"}
+                        alt={user.info.username || String(user.info.userId)}
+                        className="w-10 h-10 rounded-full border-2 border-white object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className="font-medium text-zinc-900 dark:text-white truncate">
+                          {user.info.displayName && user.info.username
+                            ? `${user.info.displayName} (@${user.info.username})`
+                            : user.info.displayName
+                              ? user.info.displayName
+                              : user.info.username
+                                ? `@${user.info.username}`
+                                : user.info.userId}
+                        </p>
+                        {(() => {
+                          const notices = user.inactivityNotices || [];
+                          const now = new Date();
+                          const approved = notices.filter(
+                            (n) =>
+                              n.approved === true &&
+                              n.reviewed === true &&
+                              n.revoked === false,
+                          );
+                          const active = approved.find(
+                            (n) =>
+                              n.endTime &&
+                              new Date(n.startTime as string) <= now &&
+                              new Date(n.endTime) >= now,
+                          );
+                          if (active) {
+                            return (
+                              <span
+                                className="flex-shrink-0"
+                                title={`On notice: ${active.reason || "N/A"}`}
+                              >
+                                <IconBeach className="w-4 h-4 text-amber-500" />
+                              </span>
+                            );
+                          }
+                          const upcoming = approved.find(
+                            (n) => new Date(n.startTime as string) > now,
+                          );
+                          if (upcoming) {
+                            return (
+                              <span
+                                className="flex-shrink-0"
+                                title={`Upcoming notice (starts ${new Date(upcoming.startTime as string).toLocaleDateString()})`}
+                              >
+                                <IconBeach className="w-4 h-4 text-emerald-500" />
+                              </span>
+                            );
+                          }
+                          const past = approved.find(
+                            (n) => n.endTime && new Date(n.endTime) < now,
+                          );
+                          if (past) {
+                            return (
+                              <span
+                                className="flex-shrink-0"
+                                title={`Previous notice (ended ${new Date(past.endTime as string).toLocaleDateString()})`}
+                              >
+                                <IconBeach className="w-4 h-4 text-zinc-400" />
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                        {user.rankName || "Guest"}
+                      </p>
+                      <div className="mt-1 flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+                        <IconBuilding className="w-3.5 h-3.5" />
+                        <span className="truncate">
+                          {Array.isArray(user.departments) &&
+                          user.departments.length > 0
+                            ? user.departments.join(", ")
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
 
             <div className="bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 md:p-4 flex items-center justify-center gap-2 md:gap-3">
               <button
@@ -420,7 +453,7 @@ const StaffDirectoryPage: pageWithLayout<PageProps> = ({ departments }) => {
               </button>
 
               <span className="px-3 py-2 text-sm font-medium rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">
-                Page {pageIndex + 1} of {totalPages}
+                Department {pageIndex + 1} of {totalPages}
               </span>
 
               <button
