@@ -474,7 +474,7 @@ const AuditLogs: FC<{ triggerToast?: any }> = () => {
           <Popover className="relative">
             {({ open, close }) => (
               <>
-                <Popover.Button className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all ${open ? 'bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-[#ff0099]/50' : 'bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white'}`}>
+                <Popover.Button className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all ${open ? 'bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-primary/50' : 'bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white'}`}>
                   <IconFilter className="w-4 h-4" />
                   <span className="text-sm">{actionFilter ? (ACTION_LABELS[actionFilter] || getActionLabel(actionFilter)) : 'Filters'}</span>
                 </Popover.Button>

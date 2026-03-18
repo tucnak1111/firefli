@@ -725,7 +725,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
                       value={linkText}
                       onChange={(e) => setLinkText(e.target.value)}
                       placeholder="Link text"
-                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-primary/40"
                       autoFocus
                     />
                   </div>
@@ -738,7 +738,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       placeholder="https://example.com"
-                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
+                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-primary/40"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && linkUrl.trim()) {
                           confirmLinkInsert();
@@ -804,7 +804,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
                   <button
                     type="button"
                     onClick={proceedWithLink}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 active:bg-[#ff0099]/90 text-white font-medium shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 active:bg-[#ff0099]/90 text-white font-medium shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <IconExternalLink size={18} />
                     Continue

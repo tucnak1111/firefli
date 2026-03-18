@@ -334,7 +334,7 @@ export function InformationTab({
                       value={discordId}
                       onChange={(e) => setDiscordId(e.target.value)}
                       placeholder="Enter Discord ID"
-                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50"
+                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
                     <button
                       type="button"
@@ -369,7 +369,7 @@ export function InformationTab({
                     <select
                       value={birthdayMonth}
                       onChange={(e) => setBirthdayMonth(e.target.value)}
-                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50"
+                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     >
                       <option value="">Month</option>
                       {monthNames.slice(1).map((month, idx) => (
@@ -381,7 +381,7 @@ export function InformationTab({
                     <select
                       value={birthdayDay}
                       onChange={(e) => setBirthdayDay(e.target.value)}
-                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50"
+                      className="flex-1 px-2 py-1 text-sm rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     >
                       <option value="">Day</option>
                       {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
@@ -476,7 +476,7 @@ export function InformationTab({
                     {availableDepartments.length > 0 ? (
                       <Listbox value={selectedDepartments} onChange={setSelectedDepartments} multiple by="id">
                         <div className="relative">
-                          <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-zinc-900 py-2 pl-3 pr-10 text-left border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50">
+                          <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-zinc-900 py-2 pl-3 pr-10 text-left border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50">
                             <span className="block truncate text-zinc-900 dark:text-white">
                               {selectedDepartments.length === 0
                                 ? "Select departments..."
@@ -573,7 +573,7 @@ export function InformationTab({
                   <Combobox value={selectedManager} onChange={setSelectedManager}>
                     <div className="relative">
                       <Combobox.Input
-                        className="relative w-full cursor-text rounded-lg bg-white dark:bg-zinc-900 py-1 pl-2 pr-8 text-left text-sm border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50"
+                        className="relative w-full cursor-text rounded-lg bg-white dark:bg-zinc-900 py-1 pl-2 pr-8 text-left text-sm border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                         displayValue={(manager: any) => manager?.username || ""}
                         onChange={(event) => setManagerQuery(event.target.value)}
                         placeholder="Search or select manager..."
