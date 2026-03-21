@@ -873,14 +873,64 @@ const Quotas: pageWithLayout<pageProps> = ({
                                   "{quota.completionNotes}"
                                 </p>
                               )}
+                              {quota.completionType === "user_complete" && (
+                                <button
+                                  onClick={() => {
+                                    const promise = axios.post(
+                                      `/api/workspace/${id}/activity/quotas/${quota.id}/uncomplete`,
+                                      { targetUserId: login.userId }
+                                    ).then(() => {
+                                      setMyQuotas(myQuotas.map((q: any) =>
+                                        q.id === quota.id
+                                          ? { ...q, completed: false, completedAt: null, completedBy: null, completedByUser: null, completionNotes: null, percentage: 0 }
+                                          : q
+                                      ));
+                                    });
+                                    toast.promise(promise, {
+                                      loading: "Marking as incomplete...",
+                                      success: "Quota marked as incomplete!",
+                                      error: "Failed to mark as incomplete",
+                                    });
+                                  }}
+                                  className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors mt-1"
+                                >
+                                  Mark as incomplete
+                                </button>
+                              )}
                             </div>
                           ) : (
-                            <div className="text-center py-3 px-4 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg">
-                              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                                {quota.completionType === "user_complete" 
-                                  ? "Not completed - can be self-completed on your profile" 
-                                  : "Not completed - requires manager signoff on your profile"}
-                              </p>
+                            <div>
+                              {quota.completionType === "user_complete" ? (
+                                <button
+                                  onClick={() => {
+                                    const promise = axios.post(
+                                      `/api/workspace/${id}/activity/quotas/${quota.id}/complete`,
+                                      { targetUserId: login.userId }
+                                    ).then(() => {
+                                      setMyQuotas(myQuotas.map((q: any) =>
+                                        q.id === quota.id
+                                          ? { ...q, completed: true, completedAt: new Date().toISOString(), percentage: 100 }
+                                          : q
+                                      ));
+                                    });
+                                    toast.promise(promise, {
+                                      loading: "Marking as complete...",
+                                      success: "Quota completed!",
+                                      error: "Failed to complete quota",
+                                    });
+                                  }}
+                                  className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <IconCheck className="w-4 h-4" />
+                                  Mark as Complete
+                                </button>
+                              ) : (
+                                <div className="text-center py-3 px-4 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg">
+                                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                    Not completed. Requires manager signoff.
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -911,7 +961,7 @@ const Quotas: pageWithLayout<pageProps> = ({
 
               {allQuotas.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="bg-white dark:bg-zinc-800 rounded-xl p-8 max-w-md mx-auto">
+                  <div className="rounded-xl p-8 max-w-md mx-auto">
                     <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                       <IconClipboardList className="w-8 h-8 text-primary" />
                     </div>
