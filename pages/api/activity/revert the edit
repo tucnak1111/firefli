@@ -118,8 +118,8 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
               if (universeInfo?.[0]?.name) {
                 gameName = universeInfo[0].name;
               };
-            } catch (err) {
-              console.warn("Failed to fetch universe info: ", err);
+            } catch {
+              // ignore
             };
           };
 
